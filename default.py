@@ -4,8 +4,8 @@ import xbmc, xbmcgui, xbmcplugin, xbmcaddon, urllib, re, string, sys, os, buggal
 plugin = "ESPN Video"
 __author__ = 'stacked <stacked.xbmc@gmail.com>'
 __url__ = 'http://code.google.com/p/plugin/'
-__date__ = '01-27-2013'
-__version__ = '2.0.4'
+__date__ = '02-18-2015'
+__version__ = '2.0.5'
 settings = xbmcaddon.Addon(id='plugin.video.espn.video')
 buggalo.SUBMIT_URL = 'http://www.xbmc.byethost17.com/submit.php'
 dbg = False
