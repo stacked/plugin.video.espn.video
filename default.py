@@ -250,7 +250,17 @@ def play_video(url, name, thumb, plot):
 		return
 	else:
 		playpath = "mp4:" + url + "_" + settings.getSetting("quality") + ".mp4"
-		url = 'rtmp://svod.espn.go.com/motion/'
+		
+		# Address a bug in early helix versions:
+		try:
+			version = xbmc_version = xbmc.getInfoLabel( "System.BuildVersion" )
+			version = float(version[:4])
+			if version >= 14.0 and version < 14.2:
+				url = 'rtmp://svod.espn.go.com/motion/' + url + "_" + settings.getSetting("quality") + ".mp4"
+			else:
+				url = 'rtmp://svod.espn.go.com/motion/'
+		except:
+			url = 'rtmp://svod.espn.go.com/motion/'
 		playListItem(label = name, image = thumb, path = url, infoLabels = infoLabels, PlayPath = playpath)
 
 params = getParameters(sys.argv[2])
