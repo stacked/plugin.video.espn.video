@@ -4,8 +4,8 @@ import xbmc, xbmcgui, xbmcplugin, xbmcaddon, urllib, re, string, sys, os, buggal
 plugin = "ESPN Video"
 __author__ = 'stacked <stacked.xbmc@gmail.com>'
 __url__ = 'http://code.google.com/p/plugin/'
-__date__ = '01-27-2013'
-__version__ = '2.0.4'
+__date__ = '02-18-2015'
+__version__ = '2.0.5'
 settings = xbmcaddon.Addon(id='plugin.video.espn.video')
 buggalo.SUBMIT_URL = 'http://www.xbmc.byethost17.com/submit.php'
 dbg = False
@@ -46,6 +46,7 @@ def build_main_directory():
 def build_sub_directory(url, thumb):
 	saveurl = url
 	html = getUrl('http://espn.go.com/video/')
+	html = html.decode(encoding='UTF-16',errors='ignore') #Swedemon fix 2015-02-16
 	menu = common.parseDOM(html, "div", attrs = { "id": url })
 	channel = common.parseDOM(menu, "li", attrs = { "class": "channel" })
 	title = common.parseDOM(channel, "a")
@@ -56,9 +57,45 @@ def build_sub_directory(url, thumb):
 			( settings.getLocalizedString( 30009 ), 'sportscenter' ),
 			( settings.getLocalizedString( 30010 ), 'first%20take' ),
 			( settings.getLocalizedString( 30011 ), 'pti' ),
-			( settings.getLocalizedString( 30012 ), 'ath' )
+			( settings.getLocalizedString( 30012 ), 'ath' ),
+			( 'Mike and Mike', 'mike%20and%20mike' ),
+			( 'Outside the Lines', 'outside%the%lines' ),
+			( 'E:60', 'e:60' ),
+			( 'Olbermann', 'olbermann' ),
+			( 'SC Featured', 'sc%20featured' ),
+			( 'Wider World of Sports', 'wider%20world%20of%20sports' ),
+			( 'This is Sportscenter', 'this%20is%20sportscenter' ),
+			( 'Grantland', 'grantland' )
 			]	
 		for name, search in shows:
+			url = 'http://search.espn.go.com/results?searchString=' + search + '&start=0&dims=6'
+			u = { 'mode': '2', 'name': settings.getLocalizedString( 30005 ), 'url': url, 'type': 'history' }
+			infoLabels = { "Title": name, "Plot": name }
+			addListItem(label = name, image = tvshows_thumb, url = u, isFolder = True, infoLabels = infoLabels)
+	if saveurl == 'menu2949049':
+		categories=[
+			( 'The Latest', 'the%20latest' ),
+			( 'NFL', 'nfl' ),
+			( 'NBA', 'nba' ),
+			( 'NHL', 'nhl' ),
+			( 'MLB', 'mlb' ),
+			( 'Tennis', 'tennis' ),
+			( 'NASCAR', 'nascar' ),
+			( 'Golf', 'golf' ),
+			( 'Boxing', 'boxing' ),
+			( 'MMA', 'mma' ),
+			( 'Action Sports', 'action%20sports' ),
+			( 'College Football', 'college%20football' ),
+			( 'College Hoops', 'college%20hoops' ),
+			( 'ESPN FC', 'espn%20fc' ),
+			( 'ESPNcricinfo', 'espncricinfo' ),
+			( 'ESPNU', 'espnu' ),
+			( 'Fantasy', 'fantasy' ),
+			( 'Racing', 'racing' ),
+			( 'Sport Science', 'sport%20science' ),
+			( "Women's Basketball", "women's%20basketball" )
+			]	
+		for name, search in categories:
 			url = 'http://search.espn.go.com/results?searchString=' + search + '&start=0&dims=6'
 			u = { 'mode': '2', 'name': settings.getLocalizedString( 30005 ), 'url': url, 'type': 'history' }
 			infoLabels = { "Title": name, "Plot": name }
@@ -213,7 +250,17 @@ def play_video(url, name, thumb, plot):
 		return
 	else:
 		playpath = "mp4:" + url + "_" + settings.getSetting("quality") + ".mp4"
-		url = 'rtmp://svod.espn.go.com/motion/'
+		
+		# Address a bug in early helix versions:
+		try:
+			version = xbmc_version = xbmc.getInfoLabel( "System.BuildVersion" )
+			version = float(version[:4])
+			if version >= 14.0 and version < 14.2:
+				url = 'rtmp://svod.espn.go.com/motion/' + url + "_" + settings.getSetting("quality") + ".mp4"
+			else:
+				url = 'rtmp://svod.espn.go.com/motion/'
+		except:
+			url = 'rtmp://svod.espn.go.com/motion/'
 		playListItem(label = name, image = thumb, path = url, infoLabels = infoLabels, PlayPath = playpath)
 
 params = getParameters(sys.argv[2])
